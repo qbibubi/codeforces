@@ -3,45 +3,26 @@
 namespace {
 using namespace std;
 
-[[nodiscard]] bool is_palindrome_possible(string const &s) {
-  unordered_map<char, size_t> m;
+[[nodiscard]] bool is_palindrome_possible(string const &str) {
+  unordered_map<char, size_t> counts;
 
-  for (auto const &ch : s) {
-    auto it = m.find(ch);
-    if (it != m.end()) {
-      it->second += 1ul;
+  for (auto const &ch : str) {
+    auto it = counts.find(ch);
+    if (it != counts.end()) {
+      it->second += 1;
       continue;
     }
 
-    m.insert(make_pair(ch, 1ul));
+    counts.insert(make_pair(ch, 1));
   }
 
-  bool palindrome_possible = true;
-  if (m.size() % 2 == 0) {
-    for (auto const &[ch, count] : m) {
-      if (count % 2 == 0) {
-        palindrome_possible &= true;
-      } else {
-        return false;
-      }
-    }
-  } else {
-    bool odd_found = false;
-
-    for (auto const &[ch, count] : m) {
-      if (count % 2 != 0 && !odd_found) {
-        odd_found = true;
-      } else {
-        return false;
-      }
-
-      if (count % 2 == 0) {
-        continue;
-      }
-    }
+  auto odds = count_if(counts.begin(), counts.end(),
+                       [](auto const &pair) { return pair.second % 2 != 0; });
+  if (odds <= 1) {
+    return true;
   }
 
-  return palindrome_possible;
+  return false;
 }
 } // namespace
 
@@ -52,37 +33,40 @@ int main() {
   string str;
   cin >> str;
 
-  bool turn = false, game_finished = false;
+  bool turn = false;
 
   while (true) {
-    for (auto i = 0; i < str.size(); ++i) {
-      if (is_palindrome_possible(str)) {
-        game_finished = true;
-        break;
-      }
-
-      auto str_copy = str;
-
-      cout << "---------------------\n";
-      cout << "(before) str: " << str << endl;
-      cout << "(before) str_copy: " << str_copy << endl;
-
-      str_copy.erase(i, 1);
-
-      cout << "(after) str: " << str << endl;
-      cout << "(after) str_copy: " << str_copy << endl;
-
-      if (!is_palindrome_possible(str_copy)) {
-        str = str_copy;
-        break;
-      }
-
-      turn = !turn;
-    }
-
-    if (game_finished) {
+    if (is_palindrome_possible(str)) {
       break;
     }
+
+    vector<size_t> possible_palindromes;
+
+    for (auto i = 0; i < str.length(); ++i) {
+      auto copy = str;
+      copy.erase(i, 1);
+
+      auto const possible_palindrome = is_palindrome_possible(copy);
+      if (possible_palindrome) {
+        possible_palindromes.push_back(1);
+        continue;
+      }
+
+      possible_palindromes.push_back(0);
+      break;
+    }
+
+    for (auto i = 0; i < possible_palindromes.size(); ++i) {
+      if (possible_palindromes[i] != 1) {
+        str.erase(i, 1);
+        break;
+      }
+
+      str.erase(0, 1);
+      break;
+    }
+
+    turn = !turn;
   }
 
   if (turn) {
@@ -90,5 +74,6 @@ int main() {
   } else {
     cout << "First" << endl;
   }
+
   return 0;
 }
