@@ -4,7 +4,7 @@ Repository contains my solutions for [Codeforces](https://codeforces.com/) probl
 
 # New problem creation 
 
-To create new problem use `new_problem.sh` directory setup script:
+To create new problem use `new.sh` directory setup script:
 
 ```bash
 # Example usage, remember to chmod +x new.sh for it to be executable
